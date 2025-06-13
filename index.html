@@ -40,6 +40,9 @@
         .theme-red {
             background: radial-gradient(at top left, #fca5a5, #dc2626);
         }
+        .theme-premium {
+            background: radial-gradient(at top left, #333333, #1a1a1a); /* Dark gradient for premium */
+        }
 
         /* Base glassmorphism effect for reusable components */
         .glass-base {
@@ -61,19 +64,20 @@
 
         .chat-history::-webkit-scrollbar-track,
         .sidebar-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05); /* Lighter, more transparent track */
             border-radius: 10px;
         }
 
         .chat-history::-webkit-scrollbar-thumb,
         .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3); /* More transparent thumb */
             border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for glass effect */
         }
 
         .chat-history::-webkit-scrollbar-thumb:hover,
         .sidebar-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.5); /* Increase opacity on hover */
         }
 
         /* Custom input and button styling */
@@ -148,11 +152,75 @@
             margin-left: auto;
         }
 
-        .cudio-message {
+        .cuido-message {
             background-color: rgba(0, 0, 0, 0.1);
             align-self: flex-start;
             margin-right: auto;
+            display: flex; /* Use flexbox for alignment */
+            align-items: flex-end; /* Align items to the bottom */
+            gap: 0.5rem; /* Space between text content and action buttons */
+            padding-right: 0.5rem; /* Adjust padding to make space for the buttons */
         }
+        .cuido-message .message-content {
+            flex-grow: 1; /* Allow text content to take available space */
+            word-break: break-word; /* Ensure long words wrap */
+        }
+        .cuido-message .message-actions {
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 0.25rem; /* Space between buttons */
+            flex-shrink: 0; /* Prevent buttons from shrinking */
+        }
+        .cuido-message .action-button { /* Common style for speak and copy buttons */
+            background-color: rgba(255, 255, 255, 0.1); /* Subtle glass background */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Glass border */
+            border-radius: 50%; /* Make it round */
+            width: 32px; /* Fixed width */
+            height: 32px; /* Fixed height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #ffffff; /* White icon color */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-out, border-color 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        }
+        .cuido-message .action-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .cuido-message .action-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Active state for speak button */
+        .cuido-message .speak-button.active {
+            background-color: rgba(74, 222, 128, 0.3); /* Green tint when active */
+            border-color: rgba(74, 222, 128, 0.6);
+            transform: scale(1.05);
+        }
+
+
+        /* Copied notification */
+        .copied-notification {
+            position: fixed;
+            bottom: 6rem; /* Above the input area */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none; /* Allow clicks to pass through */
+            z-index: 100; /* Ensure it's above other elements */
+        }
+        .copied-notification.show {
+            opacity: 1;
+        }
+
 
         .typing-indicator {
             background-color: rgba(255, 255, 255, 0.08);
@@ -392,15 +460,15 @@
                 top: 0;
                 left: -100%; /* Keep off-screen by default */
                 height: 100%;
-                width: 25%; /* Sidebar takes 1/4th width when open */
+                width: 25%;
                 min-width: 250px;
                 max-width: 300px;
-                border-radius: 0; /* No rounding on the screen-edge side */
+                border-radius: 0;
                 border-right: 1px solid rgba(255, 255, 255, 0.1);
             }
             .chat-sidebar.open {
                 left: 0;
-                border-radius: 0 2.5rem 2.5rem 0; /* Apply rounding to the visible (right) side */
+                border-radius: 0 2.5rem 2.5rem 0;
             }
 
             /* Overlay for sidebar remains functional on desktop too */
@@ -408,24 +476,40 @@
                 /* Display and opacity controlled by JS */
             }
 
-            .menu-toggle-button {
-                display: flex; /* Always visible on desktop now to toggle sidebar */
-                position: absolute; /* Keep absolute for precise placement */
-                top: 1.5rem; /* Adjust position relative to new header padding */
-                left: 1.5rem; /* Adjust position relative to new header padding */
-            }
+            /* Header layout for larger screens */
             .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 margin-bottom: 1.5rem;
-                padding-left: 50px; /* Space for the menu button */
-                padding-right: 50px; /* Space for theme buttons */
+                padding: 0 1.5rem; /* Add horizontal padding to header */
+                position: relative; /* Ensure absolute positioning works relative to this */
+            }
+            .header-content .menu-toggle-button {
+                position: static; /* Make it part of flex flow */
+                margin-right: 1rem; /* Space from title */
             }
             .header-content .text-center {
-                flex-grow: 1;
+                flex-grow: 1; /* Allow title to take available space */
+                text-align: center;
             }
-            .header-content .flex { /* Theme switcher */
-                position: absolute;
+            .header-content .theme-switcher-container { /* New container for theme buttons */
+                margin-left: 1rem; /* Space from title */
+            }
+            /* Adjustments for theme switcher within flex container */
+            .header-content .flex { /* This targets the actual flex div for theme buttons */
+                position: static; /* Remove absolute positioning */
+                top: auto;
+                right: auto;
+                justify-content: flex-end; /* Align to the right within its flex item */
+                flex-wrap: wrap; /* Allow wrapping on very narrow desktop */
+                gap: 0.75rem; /* Consistent gap between theme buttons */
+            }
+            .menu-toggle-button {
+                /* Ensure it's still clickable and visually distinct */
+                position: absolute; /* Keep it absolute for easy access on top-left */
                 top: 1.5rem;
-                right: 1.5rem;
+                left: 1.5rem;
             }
             .new-chat-button {
                 width: calc(100% - 3rem);
@@ -436,21 +520,85 @@
             .main-content-panel {
                 height: 95vh;
                 width: 95%;
-                padding: 1rem; /* Adjust padding for smaller screens */
+                padding: 1rem;
             }
+            /* Header layout for mobile screens */
             .header-content {
-                padding-left: 50px;
-                padding-right: 50px;
+                display: flex;
+                flex-wrap: wrap; /* Allow elements to wrap */
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+                padding: 0 1rem; /* Adjust padding for mobile */
+                position: relative;
             }
             .header-content .menu-toggle-button {
+                position: static; /* Make it part of flex flow */
+                margin-right: 0.5rem; /* Space from title */
+                order: 1; /* First item */
+            }
+            .header-content .text-center {
+                flex-grow: 1;
+                text-align: center;
+                order: 2; /* Second item */
+                margin-left: 0.5rem; /* Space from menu button */
+                margin-right: 0.5rem; /* Space from theme buttons */
+            }
+            .header-content .theme-switcher-container { /* New container for theme buttons */
+                order: 3; /* Third item */
+                margin-left: auto; /* Push to the right */
+            }
+            .header-content .flex { /* This targets the actual flex div for theme buttons */
+                position: static; /* Remove absolute positioning */
+                top: auto;
+                right: auto;
+                justify-content: flex-end; /* Align to the right within its flex item */
+                flex-wrap: wrap; /* Allow wrapping on very narrow desktop */
+                gap: 0.5rem; /* Smaller gap on mobile */
+            }
+            .menu-toggle-button {
+                /* On mobile, keep it slightly more accessible */
+                position: absolute;
                 top: 1rem;
                 left: 1rem;
-            }
-            .header-content .flex {
-                top: 1rem;
-                right: 1rem;
+                width: 36px; /* Slightly smaller for mobile */
+                height: 36px;
             }
         }
+
+        /* Language selector styling */
+        .language-selector {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            border-radius: 1.75rem; /* Rounded dropdown */
+            outline: none;
+            transition: all 0.2s ease-in-out;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            flex-shrink: 0; /* Prevent shrinking */
+            font-size: 0.9rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            padding-right: 2.5rem; /* Space for the custom arrow */
+        }
+
+        .language-selector:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .language-selector option {
+            background-color: #333333; /* Dark background for options for readability */
+            color: #ffffff;
+        }
+
     </style>
 </head>
 <body class="antialiased theme-blue">
@@ -490,16 +638,18 @@
             </button>
             <div class="text-center flex-grow">
                 <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500 mb-2">Cuido.AI</h1>
-                <p class="text-sm opacity-80">Your Personal Ultimate AI Assistant</p>
+                <p class="text-sm opacity-80">Your Personal AI Assistant</p>
             </div>
             <!-- Theme Switcher -->
-            <div class="flex justify-center gap-3">
+            <div class="flex justify-center gap-3 theme-switcher-container">
                 <div id="theme-blue-btn" class="theme-button bg-blue-500" data-theme="theme-blue" title="Blue Theme"></div>
                 <div id="theme-purple-btn" class="theme-button bg-purple-500" data-theme="theme-purple" title="Purple Theme"></div>
                 <div id="theme-green-btn" class="theme-button bg-green-500" data-theme="theme-green" title="Green Theme"></div>
                 <div id="theme-orange-btn" class="theme-button bg-orange-500" data-theme="theme-orange" title="Orange Theme"></div>
                 <div id="theme-pink-btn" class="theme-button bg-pink-500" data-theme="theme-pink" title="Pink Theme"></div>
                 <div id="theme-red-btn" class="theme-button bg-red-500" data-theme="theme-red" title="Red Theme"></div>
+                <!-- New Premium Theme Button -->
+                <div id="theme-premium-btn" class="theme-button" data-theme="theme-premium" title="Premium Theme" style="background: linear-gradient(135deg, #FFD700, #DAA520);"></div>
             </div>
         </header>
 
@@ -511,7 +661,101 @@
         </div>
 
         <!-- Input Area -->
-        <div class="input-area mt-4 flex gap-4 items-end">
+        <div class="input-area mt-4 flex gap-2 items-end">
+             <!-- Language Selector -->
+            <select id="language-selector" class="language-selector flex-shrink-0">
+                <option value="English">English</option>
+                <option value="French">Français</option>
+                <option value="German">Deutsch</option>
+                <option value="Spanish">Español</option>
+                <option value="Afrikaans">Afrikaans</option>
+                <option value="Albanian">Albanian</option>
+                <option value="Amharic">Amharic</option>
+                <option value="Arabic">Arabic</option>
+                <option value="Armenian">Armenian</option>
+                <option value="Azerbaijani">Azerbaijani</option>
+                <option value="Basque">Basque</option>
+                <option value="Belarusian">Belarusian</option>
+                <option value="Bengali">Bengali</option>
+                <option value="Bosnian">Bosnian</option>
+                <option value="Bulgarian">Bulgarian</option>
+                <option value="Burmese">Burmese</option>
+                <option value="Catalan">Catalan</option>
+                <option value="Cebuano">Cebuano</option>
+                <option value="Chinese">中文</option>
+                <option value="Croatian">Croatian</option>
+                <option value="Czech">Czech</option>
+                <option value="Danish">Danish</option>
+                <option value="Dutch">Dutch</option>
+                <option value="Estonian">Estonian</option>
+                <option value="Filipino">Filipino</option>
+                <option value="Finnish">Finnish</option>
+                <option value="Galician">Galician</option>
+                <option value="Georgian">Georgian</option>
+                <option value="Greek">Greek</option>
+                <option value="Gujarati">Gujarati</option>
+                <option value="Haitian Creole">Haitian Creole</option>
+                <option value="Hausa">Hausa</option>
+                <option value="Hebrew">Hebrew</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Hungarian">Hungarian</option>
+                <option value="Icelandic">Icelandic</option>
+                <option value="Igbo">Igbo</option>
+                <option value="Indonesian">Indonesian</option>
+                <option value="Irish">Irish</option>
+                <option value="Italian">Italian</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Javanese">Javanese</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Kazakh">Kazakh</option>
+                <option value="Khmer">Khmer</option>
+                <option value="Korean">Korean</option>
+                <option value="Kurdish">Kurdish</option>
+                <option value="Kyrgyz">Kyrgyz</option>
+                <option value="Lao">Lao</option>
+                <option value="Latvian">Latvian</option>
+                <option value="Lithuanian">Lithuanian</option>
+                <option value="Luxembourgish">Luxembourgish</option>
+                <option value="Macedonian">Macedonian</option>
+                <option value="Malay">Malay</option>
+                <option value="Malayalam">Malayalam</option>
+                <option value="Maltese">Maltese</option>
+                <option value="Maori">Maori</option>
+                <option value="Marathi">Marathi</option>
+                <option value="Mongolian">Mongolian</option>
+                <option value="Nepali">Nepali</option>
+                <option value="Norwegian">Norwegian</option>
+                <option value="Pashto">Pashto</option>
+                <option value="Persian">Persian</option>
+                <option value="Polish">Polish</option>
+                <option value="Portuguese">Portuguese</option>
+                <option value="Punjabi">Punjabi</option>
+                <option value="Romanian">Romanian</option>
+                <option value="Russian">Russian</option>
+                <option value="Samoan">Samoan</option>
+                <option value="Serbian">Serbian</option>
+                <option value="Sindhi">Sindhi</option>
+                <option value="Sinhala">Sinhala</option>
+                <option value="Slovak">Slovak</option>
+                <option value="Slovenian">Slovenian</option>
+                <option value="Somali">Somali</option>
+                <option value="Swahili">Swahili</option>
+                <option value="Swedish">Swedish</option>
+                <option value="Tagalog">Tagalog</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Telugu">Telugu</option>
+                <option value="Thai">Thai</option>
+                <option value="Turkish">Turkish</option>
+                <option value="Ukrainian">Ukrainian</option>
+                <option value="Urdu">Urdu</option>
+                <option value="Uzbek">Uzbek</option>
+                <option value="Vietnamese">Vietnamese</option>
+                <option value="Welsh">Welsh</option>
+                <option value="Xhosa">Xhosa</option>
+                <option value="Yiddish">Yiddish</option>
+                <option value="Yoruba">Yoruba</option>
+                <option value="Zulu">Zulu</option>
+            </select>
             <textarea
                 id="user-input"
                 class="input-field flex-grow resize-none h-12 overflow-hidden focus:h-24 md:h-12 md:focus:h-12 transition-all duration-300 ease-in-out"
@@ -529,6 +773,9 @@
     <footer class="glass-base w-full max-w-2xl text-center py-3 text-sm opacity-80 mt-4">
         <span>© 2025 Cuido.AI</span>
     </footer>
+
+    <!-- Copied Notification -->
+    <div id="copied-notification" class="copied-notification">Copied!</div>
 
     <script type="module">
         // Gemini API Key from the user.
@@ -557,6 +804,8 @@
         const welcomeSaveNameBtn = document.getElementById('welcome-save-name-btn');
         const mainContentPanel = document.querySelector('.main-content-panel');
         const footerElement = document.querySelector('footer');
+        const copiedNotification = document.getElementById('copied-notification');
+        const languageSelector = document.getElementById('language-selector');
 
 
         // Define complementary gradients for send button based on theme
@@ -566,20 +815,49 @@
             'theme-green': 'linear-gradient(135deg, rgba(251, 113, 133, 0.8), rgba(220, 38, 38, 0.8))', // Rose/Red for Green
             'theme-orange': 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.8))', // Blue for Orange
             'theme-pink': 'linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8))', // Teal/Green for Pink
-            'theme-red': 'linear-gradient(135deg, rgba(96, 165, 250, 0.8), rgba(37, 99, 235, 0.8))' // Light Blue for Red
+            'theme-red': 'linear-gradient(135deg, rgba(96, 165, 250, 0.8), rgba(37, 99, 235, 0.8))', // Light Blue for Red
+            'theme-premium': 'linear-gradient(135deg, #FFD700, #DAA520)' // Golden gradient for premium theme
         };
+
+        /**
+         * Converts Markdown text to HTML.
+         * Handles bold (`**text**`), italics (`*text*`), bold-italics (`***text***`), and newlines.
+         * @param {string} markdownText - The input text with Markdown.
+         * @returns {string} - The HTML string.
+         */
+        function convertMarkdownToHtml(markdownText) {
+            let htmlText = markdownText;
+
+            // Handle bold-italics: ***text***
+            htmlText = htmlText.replace(/\*\*\*(.*?)\*\*\*/g, '<em><strong>$1</strong></em>');
+            // Handle bold: **text**
+            htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Handle italics: *text*
+            htmlText = htmlText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            // Handle newlines
+            htmlText = htmlText.replace(/\n/g, '<br>');
+
+            return htmlText;
+        }
 
 
         // Function definitions (hoisted to the top of module scope)
         // Function to send message to Gemini API
         async function sendMessage() {
-            const prompt = userInput.value.trim();
+            let prompt = userInput.value.trim();
             if (!prompt || isWaitingForResponse) {
                 return;
             }
 
+            const selectedLanguage = languageSelector.value;
+            // Prepend the language instruction to the prompt
+            if (selectedLanguage !== "English") { // Only prepend if not English, as English is default
+                prompt = `Reply in ${selectedLanguage}: ${prompt}`;
+            }
+
+
             // Display user message immediately
-            displayMessage('user', prompt);
+            displayMessage('user', userInput.value.trim()); // Display original user input
             userInput.value = ''; // Clear input
             userInput.style.height = 'auto'; // Reset textarea height
             isWaitingForResponse = true;
@@ -592,7 +870,7 @@
             loadChatHistory(currentChatId).forEach(msg => {
                 chatHistoryForAPI.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
             });
-            // Add the current user prompt to the history for this request
+            // Add the current user prompt (with language instruction) to the history for this request
             chatHistoryForAPI.push({ role: "user", parts: [{ text: prompt }] });
 
 
@@ -684,11 +962,41 @@
 
             if (role === 'user') {
                 messageBubble.classList.add('user-message', 'bg-blue-600/30'); /* User messages with a blue tint */
+                messageBubble.textContent = text;
             } else {
-                messageBubble.classList.add('cudio-message', 'bg-gray-700/30'); /* AI messages with a darker tint */
+                messageBubble.classList.add('cuido-message', 'bg-gray-700/30'); /* AI messages with a darker tint */
+
+                // Create a container for the text content
+                const messageContentContainer = document.createElement('div');
+                messageContentContainer.classList.add('message-content');
+                // Use innerHTML to render Markdown converted to HTML
+                messageContentContainer.innerHTML = convertMarkdownToHtml(text);
+                messageBubble.appendChild(messageContentContainer);
+
+                // Create a container for the action buttons
+                const messageActionsContainer = document.createElement('div');
+                messageActionsContainer.classList.add('message-actions');
+                messageBubble.appendChild(messageActionsContainer);
+
+
+                // Create the speak button
+                const speakButton = document.createElement('button');
+                speakButton.classList.add('action-button', 'speak-button');
+                speakButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M23.31 1.69a16 16 0 0 1 0 20.62"></path></svg>`;
+                speakButton.title = "Speak message";
+                // Pass original text and the button element to speakMessage for toggle functionality
+                speakButton.onclick = (event) => speakMessage(text, event.currentTarget);
+                messageActionsContainer.appendChild(speakButton);
+
+                // Create the copy button
+                const copyButton = document.createElement('button');
+                copyButton.classList.add('action-button', 'copy-button');
+                copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+                copyButton.title = "Copy message";
+                copyButton.onclick = () => copyMessage(text);
+                messageActionsContainer.appendChild(copyButton);
             }
 
-            messageBubble.textContent = text;
             chatHistoryDiv.appendChild(messageBubble);
 
             if (shouldSave) {
@@ -716,6 +1024,91 @@
             scrollToBottom();
         }
 
+        // Function to speak the given text using Web Speech API
+        function speakMessage(text, buttonElement) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API is not supported in this browser.');
+                // Optionally provide a visual message to the user that speech is not supported
+                return;
+            }
+
+            // If currently speaking, cancel and reset button state
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                // Remove active state from all speak buttons, in case multiple are active
+                document.querySelectorAll('.speak-button.active').forEach(btn => btn.classList.remove('active'));
+                // If the cancelled speech was initiated by *this* button, then just return after cancelling
+                if (buttonElement && buttonElement.classList.contains('active')) {
+                    buttonElement.classList.remove('active');
+                    return; // Stop here if we just cancelled the current button's speech
+                }
+            }
+
+            // Clear any pending utterances before starting new speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; // Default language
+            utterance.volume = 1;     // 0 to 1
+            utterance.rate = 1;       // 0.1 to 10
+            utterance.pitch = 1;      // 0 to 2
+
+            // Attempt to find a preferred voice (e.g., a Google US English voice)
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => voice.name.includes('Google') && voice.lang === 'en-US');
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            // Event handlers for when speech ends or errors
+            utterance.onend = () => {
+                if (buttonElement) {
+                    buttonElement.classList.remove('active');
+                }
+            };
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                if (buttonElement) {
+                    buttonElement.classList.remove('active');
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+            if (buttonElement) {
+                buttonElement.classList.add('active'); // Add active class when speaking starts
+            }
+        }
+
+        // Function to copy text to clipboard
+        function copyMessage(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; // Keep it off-screen
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopiedNotification();
+                } else {
+                    console.error('Fallback: Copying text command was unsuccessful.');
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Function to show "Copied!" notification
+        function showCopiedNotification() {
+            copiedNotification.classList.add('show');
+            setTimeout(() => {
+                copiedNotification.classList.remove('show');
+            }, 1500); // Hide after 1.5 seconds
+        }
+
+
         // Function to scroll chat history to the bottom
         function scrollToBottom() {
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
@@ -742,7 +1135,7 @@
         // Function to apply a selected theme
         function applyTheme(themeClass, save = true) {
             // Remove existing theme classes
-            body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-orange', 'theme-pink', 'theme-red');
+            body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-orange', 'theme-pink', 'theme-red', 'theme-premium');
             // Add the new theme class
             body.classList.add(themeClass);
 
@@ -754,10 +1147,11 @@
 
             // Update selected state for theme buttons
             themeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const theme = button.dataset.theme;
-                    applyTheme(theme);
-                });
+                if (button.dataset.theme === themeClass) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
             });
 
             if (save) {
@@ -819,6 +1213,10 @@
             chatSessions.push(newSession);
             saveChatSessions();
             switchChat(newId);
+
+            // Add a greeting message immediately after creating and switching to the new chat
+            displayMessage('cuido', `Hello there! How can I assist you today?`, true); // Pass true to save this initial message
+
             // Close sidebar after creation
             if (chatSidebar) {
                 chatSidebar.classList.remove('open');
@@ -843,7 +1241,7 @@
 
             // Clear current chat display and render new history
             chatHistoryDiv.innerHTML = '';
-            chatHistory.forEach(message => displayMessage(message.role, message.text, false));
+            chatHistory.forEach(message => displayMessage(message.role, message.text, false)); // Don't save again
             scrollToBottom();
             renderChatSessions(); // Update active state in sidebar
         }
@@ -885,17 +1283,31 @@
                                       ? lastActiveChatId
                                       : chatSessions[0].id;
                 switchChat(initialChatId);
+
+                const userName = localStorage.getItem('userName');
+                if (userName && chatHistory.length === 0) {
+                    displayMessage('cuido', `Welcome back, ${userName}! Let's start chatting.`, true);
+                } else if (!userName && chatHistory.length === 0) {
+                    displayMessage('cuido', `Hello there! How can I assist you today?`, true);
+                }
             }
             const savedTheme = localStorage.getItem('cuidoTheme') || 'theme-blue';
             applyTheme(savedTheme, false);
 
+            // Load and set saved language preference, or default to English
+            const savedLanguage = localStorage.getItem('cuidoPreferredLanguage');
+            if (savedLanguage) {
+                languageSelector.value = savedLanguage;
+            } else {
+                languageSelector.value = 'English'; // Default to English if no preference is saved
+            }
+
+
             renderChatSessions(); // Initial rendering of chat sessions
 
-            // New logic for welcoming user
+            // New logic for welcoming user (modal only if name is not set)
             const userName = localStorage.getItem('userName');
-            if (userName) {
-                displayMessage('cuido', `Welcome back, ${userName}! How can I help you today?`);
-            } else {
+            if (!userName) {
                 // Show modal to ask for name
                 welcomeModalOverlay.classList.remove('hidden');
                 welcomeModalOverlay.classList.add('flex'); // Use flex to center content
@@ -907,7 +1319,11 @@
                         localStorage.setItem('userName', enteredName);
                         welcomeModalOverlay.classList.remove('flex');
                         welcomeModalOverlay.classList.add('hidden');
+                        // The greeting on subsequent loads is handled by the initializeApp logic directly
+                        // and new chat greetings are handled by createNewChat.
+                        // For the very first-time user after entering name in modal, give a direct greeting:
                         displayMessage('cuido', `Welcome, ${enteredName}! Let's start chatting.`);
+
                         // Ensure the new chat button gets its themed background after name is saved
                         applyTheme(localStorage.getItem('cuidoTheme') || 'theme-blue', false);
                     } else {
@@ -930,6 +1346,13 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Ensure voices are loaded before trying to use them (important for some browsers)
+            window.speechSynthesis.onvoiceschanged = () => {
+                // This event fires when voices are ready.
+                // You can potentially call speakMessage with a predefined welcome message here if the modal was dismissed
+                // and the user name was already present.
+            };
+
             if (sendButton) sendButton.addEventListener('click', sendMessage);
 
             if (userInput) {
@@ -938,6 +1361,13 @@
                         event.preventDefault();
                         sendMessage();
                     }
+                });
+            }
+
+            // Save language preference when changed
+            if (languageSelector) {
+                languageSelector.addEventListener('change', () => {
+                    localStorage.setItem('cuidoPreferredLanguage', languageSelector.value);
                 });
             }
 
